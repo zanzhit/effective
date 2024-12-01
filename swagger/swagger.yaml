@@ -1,0 +1,217 @@
+openapi: 3.0.3
+info:
+  title: Songs Library API
+  version: 1.0.0
+paths:
+  /songs:
+    get:
+      summary: Get songs with filtering and pagination
+      parameters:
+        - name: group
+          in: query
+          schema:
+            type: string
+          description: Filter by group name
+        - name: song
+          in: query
+          schema:
+            type: string
+          description: Filter by song name
+        - name: releaseDate
+          in: query
+          schema:
+            type: string
+          description: Filter by release date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Number of songs per page
+      responses:
+        '200':
+          description: List of songs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  songs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SongData'
+        '404':
+          description: Songs not found
+        '500':
+          description: Internal server error
+    post:
+      summary: Add a new song
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group:
+                  type: string
+                  example: Muse
+                song:
+                  type: string
+                  example: Supermassive Black Hole
+      responses:
+        '200':
+          description: Song added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  id:
+                    type: integer
+        '400':
+          description: Invalid request
+        '500':
+          description: Internal server error
+  /songs/{id}:
+    get:
+      summary: Get song text by verses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: verse
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Song text
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  text:
+                    type: string
+                    example: "Ooh baby, don't you know I suffer?\nOoh baby, can you hear me moan?"
+        '400':
+          description: Invalid request
+        '404':
+          description: Song not found
+        '500':
+          description: Internal server error
+    patch:
+      summary: Update song data
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSongData'
+      responses:
+        '200':
+          description: Song updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+        '400':
+          description: Invalid request
+        '404':
+          description: Song not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete song
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Song deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+        '400':
+          description: Invalid request
+        '404':
+          description: Song not found
+        '500':
+          description: Internal server error
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    SongData:
+      type: object
+      properties:
+        id:
+          type: integer
+        group:
+          type: string
+        song:
+          type: string
+        releaseDate:
+          type: string
+        text:
+          type: string
+        link:
+          type: string
+    UpdateSongData:
+      type: object
+      properties:
+        group:
+          type: string
+        song:
+          type: string
+        releaseDate:
+          type: string
+        text:
+          type: string
+        link:
+          type: string
