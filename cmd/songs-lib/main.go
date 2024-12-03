@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -69,13 +70,14 @@ func main() {
 	router.Get("/songs", filterhandler.New(log, service, cfg.PageSizeLimit))
 	router.Get("/songs/{id}", texthandler.New(log, service))
 
-	log.Info("starting server", slog.String("address", cfg.HTTPServer.Address))
+	address := fmt.Sprintf("%s:%d", cfg.HTTPServer.Host, cfg.HTTPServer.Port)
+	log.Info("starting server", slog.String("address", address))
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	srv := &http.Server{
-		Addr:         cfg.HTTPServer.Address,
+		Addr:         address,
 		Handler:      router,
 		ReadTimeout:  cfg.HTTPServer.Timeout,
 		WriteTimeout: cfg.HTTPServer.Timeout,

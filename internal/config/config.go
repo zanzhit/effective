@@ -18,7 +18,8 @@ type Database struct {
 }
 
 type HTTPServer struct {
-	Address     string        `env:"ADDRESS" env-required:"true"`
+	Port        int           `env:"APP_PORT" env-required:"true"`
+	Host        string        `env:"APP_HOST" env-required:"true"`
 	User        string        `env:"USER" env-required:"true"`
 	Password    string        `env:"USER_PASSWORD" env-required:"true"`
 	Timeout     time.Duration `env:"TIMEOUT" env-default:"4s"`
