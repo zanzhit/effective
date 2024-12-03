@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  migrator:
+    build:
+      context: .
+    container_name: migrator
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE}
+    entrypoint: ["/root/wait-for-postgres.sh", "${DB_HOST}", "${DB_PORT}", "--", "./migrator", "-migrations-path=/root/migrations"]
+
+  app:
+    build:
+      context: .
+    container_name: songs-lib
+    depends_on:
+      - migrator
+    environment:
+      ENV: ${ENV}
+      EXTERNAL_API: ${EXTERNAL_API}
+      PAGE_SIZE_LIMIT: ${PAGE_SIZE_LIMIT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE}
+      APP_HOST: ${APP_HOST}
+      APP_PORT: ${APP_PORT}
+      USER: ${USER}
+      USER_PASSWORD: ${USER_PASSWORD}
+      TIMEOUT: ${TIMEOUT}
+      IDLE_TIMEOUT: ${IDLE_TIMEOUT}
+    entrypoint: ["/root/wait-for-postgres.sh", "${DB_HOST}", "${DB_PORT}", "--", "./songs-lib"]
+    ports:  
+      - "${APP_PORT}:${APP_PORT}"
+
+volumes:
+  postgres_data:
