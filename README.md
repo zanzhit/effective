@@ -15,7 +15,8 @@
 - `DB_PASSWORD`: пароль для доступа к базе данных PostgreSQL.
 - `DB_NAME`: имя базы данных PostgreSQL.
 - `DB_SSLMODE`: режим SSL для подключения к базе данных PostgreSQL.
-- `ADDRESS`: адрес, на котором будет запущен сервис (например, `localhost:8080`).
+- `APP_HOST`: хост, на котором будет запущен сервис (например, `8080`).
+- `APP_PORT`: порт, на котором будет запущен сервис (например, `0.0.0.0`).
 - `USER`: имя пользователя для базовой авторизации.
 - `USER_PASSWORD`: пароль для базовой авторизации.
 - `TIMEOUT`: тайм-аут для запросов.
@@ -35,14 +36,15 @@ DB_PASSWORD=12345
 DB_NAME=postgres
 DB_SSLMODE=disable
 
-ADDRESS=localhost:8080
+APP_HOST=0.0.0.0
+APP_PORT=8080
 USER=user
 USER_PASSWORD=password
 TIMEOUT=5s
 IDLE_TIMEOUT=60s
 ```
 
-### Миграции базы данных:
+### Миграции базы данных (UPD: Теперь доступен запуск через docker-compose):
 
 После того, как переменные окружения указаны, выполните миграции для создания структуры базы данных. Для этого используйте команду:
 ```sh
@@ -53,6 +55,11 @@ go run ./cmd/migrator/main.go -migrations-path=migrations
 После применения миграций, запустите сам сервис:
 ```sh
 go run ./cmd/songs-lib/main.go
+```
+
+### UPD: запуск через docker:
+```sh
+docker-compose up -d
 ```
 
 ## API Документация
@@ -82,5 +89,3 @@ curl -X POST http://localhost:8080/songs -d '{
 ```sh
 curl -X GET "http://localhost:8080/songs?group=Muse&page=1&per_page=10"
 ```
-
-*todo: запуск через docker-compose, чтобы не приходилось дважды писать go run*
